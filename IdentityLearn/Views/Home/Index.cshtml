@@ -4,14 +4,15 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">用户信息</div>
-    <table class="table table-striped">
+    @*<table class="table table-striped">
         @foreach (string key in Model)
         {
             <tr>
                 <th>@key</th>
-                <td>@*@Model[key]*@</td>
+                <td></td>
             </tr>
         }
-    </table>
+    </table>*@
+    首页一点都不好看
 </div>
 @Html.ActionLink("注销", "Logout", "Account", null, new { @class = "btn btn-primary" })

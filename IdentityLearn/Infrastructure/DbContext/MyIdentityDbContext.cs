@@ -21,6 +21,9 @@ namespace IdentityLearn.Infrastructure.DbContext
 
         }
 
+        //public DbSet<MyUser> MyUsers { get; set; }
+        //public DbSet<MyUserManager> MyUserManagers { get; set; }
+
         /// <summary>
         /// 在EntityFramework Code First成功创建数据库架构之后，MyIdentityDbContext静态构造函数调用Database.SetInitializer方法Seed数据库并且只执行一次
         /// </summary>
