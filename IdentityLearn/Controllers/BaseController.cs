@@ -19,6 +19,11 @@ namespace IdentityLearn.Controllers
             get { return HttpContext.GetOwinContext().GetUserManager<MyUserManager>(); }
         }
 
+        protected MyRoleManager RoleManager
+        {
+            get { return HttpContext.GetOwinContext().GetUserManager<MyRoleManager>(); }
+        }
+
         /// <summary>
         /// 获取到存储在OwinContext中的Authentication实例，用来对用户进行验证操作
         /// </summary>

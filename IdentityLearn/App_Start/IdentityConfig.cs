@@ -2,10 +2,6 @@
 using IdentityLearn.Models;
 using Microsoft.AspNet.Identity;
 using Owin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace IdentityLearn
 {
@@ -27,11 +23,16 @@ namespace IdentityLearn
             //app.CreatePerOwinContext<MyIdentityDbContext>(MyIdentityDbContext.Create);
             app.CreatePerOwinContext(MyIdentityDbContext.Create);
             app.CreatePerOwinContext<MyUserManager>(MyUserManager.Create);
+            app.CreatePerOwinContext<MyRoleManager>(MyRoleManager.Create);
 
-            app.UseCookieAuthentication(new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions { AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie, LoginPath = new Microsoft.Owin.PathString("/Account/Login") });
+            app.UseCookieAuthentication(new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions
+            {
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                LoginPath = new Microsoft.Owin.PathString("/Account/Login")
+            });
 
-            //通过CreatePerOwinContext方法将MyIdentityDbContext和MyUserManager的实例注册到OwinContext中，这样确保每一次请求都能获取到相关ASP.NET Identity对象，而且还能保证全局唯一。
-
+            //通过CreatePerOwinContext方法将MyIdentityDbContext和MyUserManager的实例注册到OwinContext中。
+            //这样确保每一次请求都能获取到相关ASP.NET Identity对象，而且还能保证全局唯一。
             //UseCookieAuthentication 方法指定了身份验证类型为ApplicationCookie，同时指定LoginPath属性，当Http请求内容认证不通过时重定向到指定的URL。
         }
     }

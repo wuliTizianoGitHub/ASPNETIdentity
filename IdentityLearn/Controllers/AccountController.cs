@@ -91,6 +91,11 @@ namespace IdentityLearn.Controllers
             return View(model);
         }
 
+        public ActionResult LogOut()
+        {
+            AuthManager.SignOut();
+            return RedirectToAction("Index", "Home");
+        }
 
         private void AddErrorsFromResult(IdentityResult result)
         {
