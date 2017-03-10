@@ -1,8 +1,9 @@
-﻿@model IEnumerable<string>
+﻿@*@model IEnumerable<string>*@
 @{ ViewBag.Title = "Error";}
 
 <div class="alert alert-danger">
-    @switch (Model.Count())
+    没有权限
+    @*@switch (Model.Count())
     {
         case 0:
             @: 发生意外错误，请重试！
@@ -19,6 +20,6 @@
             }
         </ul>
             break;
-    }
+    }*@
 </div>
-@Html.ActionLink("OK", "Index", null, new { @class = "btn btn-default" })
+@Html.ActionLink("OK", "Index","Home", null, new { @class = "btn btn-default" })

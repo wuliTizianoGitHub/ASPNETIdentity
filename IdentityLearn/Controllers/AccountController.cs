@@ -1,8 +1,12 @@
-﻿using IdentityLearn.Models;
+﻿using IdentityLearn.Infrastructure;
+using IdentityLearn.Models;
 using IdentityLearn.Models.ViewModel;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 
 namespace IdentityLearn.Controllers
@@ -43,11 +47,12 @@ namespace IdentityLearn.Controllers
         [AllowAnonymous]   //跳过Authorize身份验证
         public ActionResult Login(string returnUrl)
         {
-            //判断用户是否已经登录
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                return View("Error", new string[] { "您已经登录！" });
-            }
+                //判断用户是否已经登录
+                if (HttpContext.User.Identity.IsAuthenticated)
+                {
+                    return View("Error", new string[] { "您已经登录！" });
+                }
+           
 
             ViewBag.returnUrl = returnUrl;
             return View();
@@ -68,15 +73,11 @@ namespace IdentityLearn.Controllers
                 }
                 else
                 {
-                    //创建Cookie 并输出到客户端浏览器，这样浏览器的下一次请求就会带着这个Cookie;
-                    //当请求经过AuthenticateRequest 阶段时，读取并解析Cookie
-                    //1.创建用来代表当前登录用户的ClaimsIdentity 对象，ClaimsIndentity 是 ASP.NET Identity 中的类，它实现了IIdentity 接口。
-                    //ClaimsIdentity 对象实际上由AppUserManager 对象的CreateIdentityAsync 方法创建。
-                    //它需要接受一个MyUser 对象和身份验证类型，在这儿选择ApplicationCookie。
+                  
                     var claimsIdentity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
-                    //2.
-                    //claimsIdentity.AddClaims(LocationClaimsProvider.GetClaims(claimsIdentity));
-                    //claimsIdentity.AddClaims(ClaimsRoles.CreateRolesFromClaims(claimsIdentity));
+                    //将自定义声明传入到ClaimsIndentity
+                    claimsIdentity.AddClaims(LocationClaimsProvider.GetClaims(claimsIdentity));
+                    claimsIdentity.AddClaims(ClaimsRoles.CreateRolesFromClaims(claimsIdentity));
 
                     AuthManager.SignOut();
                     //AuthenticationProperties 对象和ClaimsIdentity 对象，AuthticationProperties 有众多属性，我在这儿只设置IsPersistent=true 。
@@ -90,6 +91,62 @@ namespace IdentityLearn.Controllers
             ViewBag.returnUrl = returnUrl;
             return View(model);
         }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult GoogleLogin(string returnUrl)
+        {
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleLoginCallback",
+                new { returnUrl = returnUrl })
+            };
+            HttpContext.GetOwinContext().Authentication.Challenge(properties, "Google");
+            return new HttpUnauthorizedResult();
+        }
+
+        /// <summary>
+        /// Google登陆成功后（即授权成功）回掉此Action
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        public async Task<ActionResult> GoogleLoginCallback(string returnUrl)
+        {
+            ExternalLoginInfo loginInfo = await AuthManager.GetExternalLoginInfoAsync();
+            MyUser user = await UserManager.FindAsync(loginInfo.Login);
+            if (user == null)
+            {
+                user = new MyUser
+                {
+                    Email = loginInfo.Email,
+                    UserName = loginInfo.DefaultUserName,
+                    City = Cities.Shanghai,
+                    Country = Countries.China
+                };
+
+                IdentityResult result = await UserManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return View("Error", result.Errors);
+                }
+                result = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
+                if (!result.Succeeded)
+                {
+                    return View("Error", result.Errors);
+                }
+            }
+            ClaimsIdentity ident = await UserManager.CreateIdentityAsync(user,
+                DefaultAuthenticationTypes.ApplicationCookie);
+            ident.AddClaims(loginInfo.ExternalIdentity.Claims);
+            AuthManager.SignIn(new AuthenticationProperties
+            {
+                IsPersistent = false
+            }, ident);
+            return Redirect(returnUrl ?? "/");
+        }
+
 
         public ActionResult LogOut()
         {

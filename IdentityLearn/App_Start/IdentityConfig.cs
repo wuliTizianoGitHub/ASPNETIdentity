@@ -20,6 +20,9 @@ namespace IdentityLearn
             //context.Set<TResult>(instance);
 
 
+            //通过CreatePerOwinContext方法将MyIdentityDbContext和MyUserManager的实例注册到OwinContext中。
+            //这样确保每一次请求都能获取到相关ASP.NET Identity对象，而且还能保证全局唯一。
+            //UseCookieAuthentication 方法指定了身份验证类型为ApplicationCookie，同时指定LoginPath属性，当Http请求内容认证不通过时重定向到指定的URL。
             //app.CreatePerOwinContext<MyIdentityDbContext>(MyIdentityDbContext.Create);
             app.CreatePerOwinContext(MyIdentityDbContext.Create);
             app.CreatePerOwinContext<MyUserManager>(MyUserManager.Create);
@@ -31,9 +34,15 @@ namespace IdentityLearn
                 LoginPath = new Microsoft.Owin.PathString("/Account/Login")
             });
 
-            //通过CreatePerOwinContext方法将MyIdentityDbContext和MyUserManager的实例注册到OwinContext中。
-            //这样确保每一次请求都能获取到相关ASP.NET Identity对象，而且还能保证全局唯一。
-            //UseCookieAuthentication 方法指定了身份验证类型为ApplicationCookie，同时指定LoginPath属性，当Http请求内容认证不通过时重定向到指定的URL。
+
+            //配置Google身份验证服务的支持
+            //http://www.asp.net/mvc/overview/security/create-an-aspnet-mvc-5-app-with-facebook-and-google-oauth2-and-openid-sign-on
+            app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
+            app.UseGoogleAuthentication(new Microsoft.Owin.Security.Google.GoogleOAuth2AuthenticationOptions()
+            {
+                 ClientId= "331569430644-rgo9hboqv5a6vl6v1c732hn2l394g2f3.apps.googleusercontent.com",
+                 ClientSecret = "QcA1DdtS-q0yRU8yqVxk122p"
+            });
         }
     }
 }

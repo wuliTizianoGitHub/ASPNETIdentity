@@ -7,16 +7,17 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using IdentityLearn.Models.ViewModel;
+using IdentityLearn.Infrastructure;
 
 namespace IdentityLearn.Controllers
 {
-    [Authorize(Roles ="Administrator")]
+    [CustomAuthorize(Roles = new string[] { "Administrator" })]
     public class RoleController : BaseController
     {
         
         public ActionResult Index()
         {
-            return View(RoleManager.Roles.ToList());
+            return View(RoleManager.Roles.ToList()); 
         }
 
         public ActionResult Create()

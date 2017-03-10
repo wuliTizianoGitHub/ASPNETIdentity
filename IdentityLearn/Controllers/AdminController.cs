@@ -1,4 +1,5 @@
-﻿using IdentityLearn.Models;
+﻿using IdentityLearn.Infrastructure;
+using IdentityLearn.Models;
 using IdentityLearn.Models.ViewModel;
 using Microsoft.AspNet.Identity;
 using System;
@@ -10,7 +11,7 @@ using System.Web.Mvc;
 
 namespace IdentityLearn.Controllers
 {
-    [Authorize(Roles = "Administrator")] //只有角色是Administrator的用户才能进入此模块
+    [CustomAuthorize(Roles =new string[] { "Administrator" })] //只有角色是Administrator的用户才能进入此模块
     public class AdminController : BaseController
     {
         public ActionResult Index()

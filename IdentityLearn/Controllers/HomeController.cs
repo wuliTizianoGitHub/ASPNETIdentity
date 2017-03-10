@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using IdentityLearn.Infrastructure;
+using System.Collections.Generic;
 using System.Web.Mvc;
 
 namespace IdentityLearn.Controllers
@@ -6,10 +7,17 @@ namespace IdentityLearn.Controllers
     public class HomeController : BaseController
     {
 
-        [Authorize]//开启登录验证
+        [CustomAuthorize]//开启登录验证
         public ActionResult Index()
         {
             return View(GetData("Index"));
+        }
+
+        [CustomAuthorize(Roles = new string[] { "Employee" })]
+        public ActionResult OtherAction()
+        {
+            return Content("没有页面");
+            //return View("Error", new string[] { "没有权限！" });
         }
 
         private Dictionary<string, object> GetData(string actionName)
@@ -21,6 +29,11 @@ namespace IdentityLearn.Controllers
             dict.Add("身份验证类型",HttpContext.User.Identity.AuthenticationType);
             dict.Add("是否隶属于Administrator", HttpContext.User.IsInRole("Administrator"));
             return dict;
+        }
+
+        public ActionResult Error()
+        {
+            return View();
         }
     }
 }
